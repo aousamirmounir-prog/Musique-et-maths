@@ -350,4 +350,65 @@
                 approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
                 const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
                 approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { durat
+                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { duration, sampleRate);
+            Soundfont.instrument(offlineCtx, approvedModel.instrument).then(async function (instrument) {
+                approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
+                const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
+                approvedModel.melodySequence.forEach(item => {
+                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { duration: 0.35, gain: item.velocity });
+                });
+                let renderedBuffer = await offlineCtx.startRendering();
+                let wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+                document.getElementById('nativeAudioPlayer').src = URL.createObjectURL(wavBlob);
+                document.getElementById('audioContainer').classList.remove('hidden');
+                document.getElementById('loadingStatus').innerText = "WAV généré avec succès !";
+            });
+        }
+
+        function bufferToWave(abuffer, len) {
+            let numOfChan = abuffer.numberOfChannels,
+                length = len * numOfChan * 2 + 44,
+                buffer = new ArrayBuffer(length),
+                view = new DataView(buffer),
+                channels = [], sample,
+                offset = 0,
+                pos = 0;
+
+            function writeString(str) {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(pos++, str.charCodeAt(i));
+                }
+            }
+
+            writeString('RIFF');
+            view.setUint32(pos, length - 8, true); pos += 4;
+            writeString('WAVE');
+            writeString('fmt ');
+            view.setUint32(pos, 16, true); pos += 4;
+            view.setUint16(pos, 1, true); pos += 2;
+            view.setUint16(pos, numOfChan, true); pos += 2;
+            view.setUint32(pos, abuffer.sampleRate, true); pos += 4;
+            view.setUint32(pos, abuffer.sampleRate * 2 * numOfChan, true); pos += 4;
+            view.setUint16(pos, numOfChan * 2, true); pos += 2;
+            view.setUint16(pos, 16, true); pos += 2;
+            writeString('data');
+            view.setUint32(pos, length - pos - 4, true); pos += 4;
+
+            for (let i = 0; i < abuffer.numberOfChannels; i++) {
+                channels.push(abuffer.getChannelData(i));
+            }
+
+            while (offset < len) {
+                for (let i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
+                    view.setInt16(pos, sample, true); pos += 2;
+                }
+                offset++;
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+    </script>
+</body>
+</html>
