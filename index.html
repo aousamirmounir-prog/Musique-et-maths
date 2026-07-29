@@ -83,7 +83,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-medium text-slate-300 mb-1">Côtés du Polygone ($N \in [4,6]$)</label>
+                        <label class="block font-medium text-slate-300 mb-1">Côtés du Polygone (N de 4 à 6)</label>
                         <select id="polygonSides" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="4">Carré (4 sommets)</option>
                             <option value="5" selected>Pentagone (5 sommets - Style Bossa)</option>
@@ -151,10 +151,18 @@
 
         async function addAndAnalyzeSingleFile() {
             const fileInput = document.getElementById('singleAudioInput');
-            if (!fileInput.files || fileInput.files.length === 0) return;
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Veuillez d'abord sélectionner un fichier audio.");
+                return;
+            }
 
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
             let file = fileInput.files[0];
+            document.getElementById('loadingStatus').innerText = "Chargement et analyse en cours...";
 
             try {
                 let arrayBuffer = await file.arrayBuffer();
@@ -164,9 +172,11 @@
 
                 updateMemoryUI();
                 document.getElementById('globalReportBtn').removeAttribute('disabled');
-                document.getElementById('loadingStatus').innerText = `Fichier "${file.name}" ajouté en mémoire.`;
+                document.getElementById('loadingStatus').innerText = `Fichier "${file.name}" ajouté avec succès !`;
             } catch (e) {
                 console.error(e);
+                document.getElementById('loadingStatus').innerText = "Erreur de décodage audio.";
+                alert("Erreur lors de l'analyse du fichier audio : " + e.message);
             }
         }
 
@@ -333,20 +343,11 @@
 
         async function prepareWavExport() {
             if (!approvedModel) return;
+            document.getElementById('loadingStatus').innerText = "Génération du fichier WAV en cours...";
             let sampleRate = 44100, duration = (approvedModel.melodySequence.slice(-1)[0].timeOffset + 3.0);
             let offlineCtx = new OfflineAudioContext(2, sampleRate * duration, sampleRate);
             Soundfont.instrument(offlineCtx, approvedModel.instrument).then(async function (instrument) {
                 approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
                 const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
                 approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { duration: 0.35, gain: item.velocity });
-                });
-                let renderedBuffer = await offlineCtx.startRendering();
-                let wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
-                document.getElementById('nativeAudioPlayer').src = URL.createObjectURL(wavBlob);
-                document.getElementById('audioContainer').classList.remove('hidden');
-            });
-        }
-
-        function bufferToWave(abuffer, len) {
-            let numOfChan = abuffer.numberOfChannels, length = len * numOfChan * 2 + 44, buffer = new ArrayBuffer(length), vie
+                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { durat
