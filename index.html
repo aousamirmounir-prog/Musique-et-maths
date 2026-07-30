@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fr" class="dark">
 <head>
@@ -350,12 +351,7 @@
                 approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
                 const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
                 approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { duration, sampleRate);
-            Soundfont.instrument(offlineCtx, approvedModel.instrument).then(async function (instrument) {
-                approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
-                const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
-                approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", item.timeOffset, { duration: 0.35, gain: item.velocity });
+                    instrument.play(noteNames[item.note] || "C4", item.timeOffset,, { duration: 0.35, gain: item.velocity });
                 });
                 let renderedBuffer = await offlineCtx.startRendering();
                 let wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
@@ -412,3 +408,5 @@
     </script>
 </body>
 </html>
+
+```
