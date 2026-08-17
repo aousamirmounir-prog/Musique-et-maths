@@ -523,3 +523,144 @@
 
                 ctx.save();
                 ctx.translate(centerX, centerY);
+
+                const halfBins = usableBins / 2;
+                for (let i = 0; i < halfBins; i++) {
+                    let val = dataArray[i] / 255;
+                    let barLen = val * maxBarLen;
+
+                    let angle1 = (i * 2 * Math.PI) / usableBins;
+                    let angle2 = ((i + halfBins) * 2 * Math.PI) / usableBins;
+
+                    let x1 = Math.cos(angle1) * radius;
+                    let y1 = Math.sin(angle1) * radius;
+                    let x2 = Math.cos(angle1) * (radius + barLen);
+                    let y2 = Math.sin(angle1) * (radius + barLen);
+
+                    let x3 = Math.cos(angle2) * radius;
+                    let y3 = Math.sin(angle2) * radius;
+                    let x4 = Math.cos(angle2) * (radius + barLen);
+                    let y4 = Math.sin(angle2) * (radius + barLen);
+
+                    ctx.strokeStyle = primaryColor;
+                    ctx.lineWidth = Math.max(2, (2 * Math.PI * radius) / usableBins - 1);
+                    ctx.lineCap = 'round';
+
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(x3, y3);
+                    ctx.lineTo(x4, y4);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+        }
+
+        startRecordingBtn.addEventListener('click', () => {
+            if (!audioLoaded) return;
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            recordedChunks = [];
+
+            const canvasStream = canvas.captureStream(30);
+            const dest = audioCtx.createMediaStreamDestination();
+            audioSource.connect(dest);
+            audioSource.connect(audioCtx.destination);
+
+            const combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...dest.stream.getAudioTracks()
+            ]);
+
+            let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+            }
+
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, options);
+            } catch (e) {
+                showModal('Erreur d\'enregistrement', 'Votre navigateur ne prend pas en charge l\'enregistrement vidéo direct.', 'error');
+                return;
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                
+                // Conversion absolue en Data URL Base64 pour contourner les restrictions mobiles
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    generatedDataUrl = reader.result;
+                    resultVideo.src = generatedDataUrl;
+                    resultContainer.classList.remove('hidden');
+
+                    recordingStatus.classList.add('hidden');
+                    startRecordingBtn.disabled = false;
+                    startRecordingBtn.innerHTML = '<i class="fa-solid fa-video"></i> Enregistrer à nouveau';
+                    showModal('Vidéo prête !', 'Votre vidéo est générée et convertie. Appuyez sur le bouton vert pour télécharger instantanément.', 'success');
+                };
+            };
+
+            audioElement.currentTime = 0;
+            audioElement.play();
+            isPlaying = true;
+            playIcon.className = 'fa-solid fa-pause';
+            visualize();
+
+            mediaRecorder.start();
+            startRecordingBtn.disabled = true;
+            recordingStatus.classList.remove('hidden');
+
+            recordingStartTime = Date.now();
+            clearInterval(recordingInterval);
+            recordingInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                recordingTimer.textContent = `Enregistrement en cours... (${formatTime(elapsed)})`;
+                
+                if (audioElement.ended) {
+                    stopRecording();
+                }
+            }, 500);
+        });
+
+        // Téléchargement garanti via Data URL
+        forceDownloadBtn.addEventListener('click', () => {
+            if (!generatedDataUrl) return;
+            
+            const a = document.createElement('a');
+            a.href = generatedDataUrl;
+            a.download = 'waveform_animation.webm';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                clearInterval(recordingInterval);
+            }
+            if (audioElement) {
+                audioElement.pause();
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                cancelAnimationFrame(animationId);
+            }
+        }
+    </script>
+</body>
+</html>
