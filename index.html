@@ -503,3 +503,23 @@
                 let startX = padding;
 
                 for (let i = 0; i < usableBins; i++) {
+                    let v = dataArray[i] / 255.0;
+                    let y = (height / 2) + (v - 0.5) * (height * 0.5) * scale;
+                    let x = startX + (i * sliceWidth);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            } else if (style === 'circle') {
+                let centerX = width / 2;
+                let centerY = height / 2;
+                let baseRadius = Math.min(width, height) * 0.16;
+                let radius = baseRadius * scale;
+                let maxBarLen = 130 * scale;
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
