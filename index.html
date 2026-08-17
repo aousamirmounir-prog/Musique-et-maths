@@ -487,3 +487,19 @@
                     let barHeight = (dataArray[i] / 255) * (height * 0.45) * scale;
 
                     let gradient = ctx.createLinearGradient(0, height / 2, 0, height / 2 + barHeight);
+                    gradient.addColorStop(0, primaryColor);
+                    gradient.addColorStop(1, '#3b82f6');
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(startX + (i * barWidth), (height / 2) - (barHeight / 2), Math.max(1, barWidth - 3), barHeight);
+                }
+            } else if (style === 'wave') {
+                ctx.lineWidth = 6 * scale;
+                ctx.strokeStyle = primaryColor;
+                ctx.beginPath();
+
+                const availableWidth = width - (padding * 2);
+                let sliceWidth = availableWidth / usableBins;
+                let startX = padding;
+
+                for (let i = 0; i < usableBins; i++) {
