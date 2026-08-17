@@ -3,409 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Mathématique - 8 Variables & Polygones Rythmiques</title>
+    <title>Générateur d'Animation Audio Waveform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0f172a',
-                        cardbg: '#1e293b',
+                        brand: {
+                            50: '#fdf4f8',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            750: '#831843'
+                        }
                     }
                 }
             }
         }
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-darkbg text-slate-100 min-h-screen font-sans p-4 md:p-8">
-    <div class="max-w-6xl mx-auto space-y-8">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-pink-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-pink-500 to-purple-600 p-2.5 rounded-xl shadow-lg shadow-pink-500/20">
+                    <i class="fa-solid fa-waveform text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Waveform Studio</h1>
+                    <p class="text-xs text-slate-400">Visualiseur & Enregistreur Vidéo Audio</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-slate-300">Prêt à l'emploi</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- En-tête -->
-        <header class="text-center space-y-3">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 bg-clip-text text-transparent">
-                Studio Mathématique : Mémoire Cumulative & Validation
-            </h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-                Analyse multi-fichiers, calcul des 8 variables, extraction globale, et génération de polygones (4 à 6 côtés irréguliers) pour synchroniser mélodie et rythme via Soundfont.
-            </p>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Controls & Settings Panel -->
+        <div class="lg:col-span-1 space-y-6">
             
-            <!-- Étape 1 : Mémoire Cumulative & Analyse Individuelle -->
-            <div class="bg-cardbg p-6 rounded-2xl shadow-xl border border-slate-800 space-y-5">
-                <h2 class="text-lg font-bold flex items-center gap-2 text-emerald-400">
-                    <span>1.</span> Mémoire & Fichiers
+            <!-- Step 1: Upload -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold">1</span>
+                    Fichier Audio
                 </h2>
                 
-                <div class="space-y-4 text-xs">
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">Ajouter un fichier audio (cumulatif)</label>
-                        <input type="file" id="singleAudioInput" accept="audio/*" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500">
+                <label id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-pink-500/50 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/50 group">
+                    <div class="w-12 h-12 rounded-full bg-slate-800 group-hover:bg-pink-500/20 flex items-center justify-center text-slate-400 group-hover:text-pink-400 transition mb-3">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
                     </div>
-
-                    <button onclick="addAndAnalyzeSingleFile()" class="w-full bg-teal-600 hover:bg-teal-500 text-sm font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-teal-600/20 flex items-center justify-center gap-2">
-                        <span>➕</span> Charger et Analyser ce Fichier
-                    </button>
-
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2 max-h-36 overflow-y-auto">
-                        <span class="text-slate-400 block font-semibold">Fichiers en mémoire :</span>
-                        <ul id="memoryFilesList" class="text-slate-300 space-y-1">
-                            <li class="italic text-slate-500">Aucun fichier en mémoire.</li>
-                        </ul>
+                    <span class="text-sm font-medium text-slate-200 group-hover:text-pink-300 transition text-center">Glissez un fichier audio ici</span>
+                    <span class="text-xs text-slate-500 mt-1">MP3, WAV, AAC, OGG</span>
+                    <input type="file" id="audio-file" accept="audio/*" class="hidden">
+                </label>
+                
+                <div id="file-info" class="mt-4 hidden p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-center justify-between">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <i class="fa-solid fa-music text-pink-400 flex-shrink-0"></i>
+                        <span id="file-name" class="text-xs text-slate-200 truncate">nom_du_fichier.mp3</span>
                     </div>
-
-                    <button onclick="runGlobalTrendAnalysis()" id="globalReportBtn" disabled class="w-full bg-emerald-700 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-600 text-sm font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-700/20 flex items-center justify-center gap-2">
-                        <span>📊</span> Lancer le Rapport Global des Tendances
-                    </button>
+                    <button id="remove-file" class="text-slate-400 hover:text-red-400 p-1 transition"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
-            <!-- Étape 2 : Génération, Polygone & Approbation -->
-            <div class="bg-cardbg p-6 rounded-2xl shadow-xl border border-slate-800 space-y-5">
-                <h2 class="text-lg font-bold flex items-center gap-2 text-indigo-400">
-                    <span>2.</span> Polygone & Approbation
+            <!-- Step 2: Customization -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold">2</span>
+                    Personnalisation
                 </h2>
-                
-                <div class="space-y-4 text-xs">
-                    <div>
-                        <label class="block font-medium text-slate-300 mb-1">Instrument Réel (Soundfont)</label>
-                        <select id="instrumentSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                            <option value="acoustic_grand_piano">🎹 Piano Acoustique</option>
-                            <option value="acoustic_guitar_nylon">🎸 Guitare Nylon</option>
-                            <option value="violin">🎻 Violon</option>
-                            <option value="fx_3_crystal">✨ Cloches Crystal</option>
-                        </select>
+
+                <!-- Style Selector -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5">Style d'animation</label>
+                    <select id="viz-style" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pink-500 transition">
+                        <option value="bars">Barres dynamiques</option>
+                        <option value="wave">Onde fluide continue</option>
+                        <option value="circle">Cercle Symétrique 360°</option>
+                    </select>
+                </div>
+
+                <!-- Scale Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs text-slate-400">Échelle / Taille de l'animation</label>
+                        <span id="scale-value" class="text-xs text-pink-400 font-mono">1.0x</span>
                     </div>
+                    <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500 border border-slate-700">
+                </div>
 
+                <!-- Color Scheme -->
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-medium text-slate-300 mb-1">Côtés du Polygone (N de 4 à 6)</label>
-                        <select id="polygonSides" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-                            <option value="4">Carré (4 sommets)</option>
-                            <option value="5" selected>Pentagone (5 sommets - Style Bossa)</option>
-                            <option value="6">Hexagone (6 sommets)</option>
-                        </select>
+                        <label class="block text-xs text-slate-400 mb-1.5">Couleur Principale</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="primary-color" value="#ec4899" class="w-10 h-9 bg-slate-950 border border-slate-700 rounded-lg cursor-pointer p-1">
+                            <span class="text-xs text-slate-400 font-mono" id="primary-hex">#ec4899</span>
+                        </div>
                     </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1.5">Arrière-plan</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="bg-color" value="#090d16" class="w-10 h-9 bg-slate-950 border border-slate-700 rounded-lg cursor-pointer p-1">
+                            <span class="text-xs text-slate-400 font-mono" id="bg-hex">#090d16</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <button onclick="generateProposal()" id="propagateBtn" disabled class="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-sm font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-                        <span>⚡</span> Proposer un Rythme & Mélodie
-                    </button>
-
-                    <button onclick="approveProposal()" id="approveBtn" disabled class="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-600 text-sm font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2">
-                        <span>✅</span> Approuver & Verrouiller ce Modèle
-                    </button>
+                <!-- Title Overlay Option -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5">Titre sur la vidéo (Optionnel)</label>
+                    <input type="text" id="video-title" placeholder="Mon Super Morceau" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-pink-500 transition">
                 </div>
             </div>
 
-            <!-- Étape 3 : Restitution Finale & Export WAV -->
-            <div class="bg-cardbg p-6 rounded-2xl shadow-xl border border-slate-800 flex flex-col justify-between space-y-4">
-                <h2 class="text-lg font-bold flex items-center gap-2 text-amber-400">
-                    <span>3.</span> Restitution & WAV Final
+            <!-- Step 3: Export Video -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold">3</span>
+                    Génération & Export
                 </h2>
                 
-                <div class="relative w-full h-36 flex items-center justify-center bg-slate-950/40 rounded-xl p-2 border border-slate-800">
-                    <canvas id="polygonCanvas" width="160" height="120" class="max-h-full"></canvas>
-                </div>
+                <p class="text-xs text-slate-400">Enregistre la lecture et génère le fichier vidéo final.</p>
 
-                <button onclick="playFinalMusic()" id="playFinalBtn" disabled class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 text-sm font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
-                    <span>▶</span> Jouer la Musique Finale
+                <button id="start-recording" disabled class="w-full py-3 px-4 rounded-xl font-medium text-sm bg-pink-600 hover:bg-pink-500 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-600/30 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-video"></i>
+                    Enregistrer la vidéo
                 </button>
 
-                <button onclick="prepareWavExport()" id="exportFinalBtn" disabled class="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-slate-800 disabled:text-slate-600 text-sm font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
-                    <span>📥</span> Télécharger le WAV Final
-                </button>
-
-                <div id="audioContainer" class="hidden space-y-1">
-                    <audio id="nativeAudioPlayer" controls class="w-full h-8"></audio>
+                <div id="recording-status" class="hidden flex items-center justify-center space-x-2 text-xs text-pink-400 bg-pink-500/10 p-2.5 rounded-xl border border-pink-500/20">
+                    <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping"></span>
+                    <span id="recording-timer">Enregistrement en cours... (00:00)</span>
                 </div>
-
-                <p id="loadingStatus" class="text-center text-[11px] text-slate-400">En attente de chargement.</p>
             </div>
 
         </div>
 
-        <!-- Rapport Global -->
-        <div class="bg-cardbg p-6 rounded-2xl shadow-xl border border-slate-800 space-y-4">
-            <h2 class="text-lg font-bold text-teal-400">Rapport d'Analyse Détaillé & Tendances Globales</h2>
-            <div id="globalReportContent" class="text-xs text-slate-300 space-y-2">
-                <p class="italic text-slate-500">Chargez vos fichiers et lancez le rapport global pour voir les récurrences des 8 variables mathématiques.</p>
+        <!-- Preview & Visualizer Canvas Panel -->
+        <div class="lg:col-span-2 flex flex-col space-y-4">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex-grow flex flex-col justify-between relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3 z-10">
+                    <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye text-pink-500"></i> Aperçu en Direct
+                    </span>
+                    <div id="audio-duration" class="text-xs font-mono text-slate-500">00:00 / 00:00</div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="relative w-full aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner">
+                    <canvas id="visualizer" class="w-full h-full block"></canvas>
+                    
+                    <!-- Overlay Text Preview -->
+                    <div id="preview-title-overlay" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                        <h3 id="overlay-text-content" class="text-2xl font-bold text-white tracking-wider drop-shadow-lg text-center px-4"></h3>
+                    </div>
+
+                    <!-- Empty State Placeholder -->
+                    <div id="canvas-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-600 bg-slate-950/80 backdrop-blur-sm z-20 transition-opacity">
+                        <i class="fa-solid fa-headphones text-4xl mb-2 text-slate-700 animate-bounce"></i>
+                        <p class="text-sm font-medium text-slate-400">Chargez un fichier audio pour démarrer</p>
+                    </div>
+                </div>
+
+                <!-- Playback Control Bar -->
+                <div class="mt-4 flex items-center space-x-4 bg-slate-950 p-3 rounded-xl border border-slate-800 z-10">
+                    <button id="play-btn" disabled class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-white transition shadow">
+                        <i id="play-icon" class="fa-solid fa-play"></i>
+                    </button>
+                    
+                    <div class="flex-grow flex items-center space-x-3">
+                        <input type="range" id="seek-bar" value="0" min="0" max="100" step="0.1" disabled class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pink-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    </div>
+
+                    <div class="flex items-center space-x-2 text-slate-400">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                        <input type="range" id="volume-bar" value="1" min="0" max="1" step="0.05" class="w-20 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                    </div>
+                </div>
             </div>
+
+            <!-- Result Video Player & Direct Download Container -->
+            <div id="result-container" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Vidéo générée avec succès !
+                    </span>
+                    <span class="text-[10px] text-slate-400">Prête au téléchargement</span>
+                </div>
+                
+                <video id="result-video" controls class="w-full aspect-video rounded-xl bg-black border border-slate-800"></video>
+
+                <!-- Bouton de Téléchargement Ultime Base64 -->
+                <button id="force-download-btn" class="w-full py-3.5 px-4 rounded-xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-center cursor-pointer">
+                    <i class="fa-solid fa-download text-base"></i>
+                    Télécharger la vidéo (.webm)
+                </button>
+            </div>
+
         </div>
 
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/30 py-4 text-center text-xs text-slate-500">
+        Générateur Waveform Audio & Vidéo &bull; Conçu avec HTML5 Canvas & Web Audio API
+    </footer>
+
+    <!-- Custom Notification Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">
+            <div id="modal-icon" class="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl"></div>
+            <h3 id="modal-title" class="text-base font-bold text-white"></h3>
+            <p id="modal-desc" class="text-xs text-slate-400"></p>
+            <button id="modal-close" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition">Fermer</button>
+        </div>
     </div>
 
-    <!-- Script principal -->
+    <!-- Application Script -->
     <script>
-        let audioMemory = [];
-        let audioCtx = null;
-        let approvedModel = null;
-        let currentProposal = null;
+        const audioFileInput = document.getElementById('audio-file');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInfo = document.getElementById('file-info');
+        const fileNameEl = document.getElementById('file-name');
+        const removeFileBtn = document.getElementById('remove-file');
+        const canvasPlaceholder = document.getElementById('canvas-placeholder');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const seekBar = document.getElementById('seek-bar');
+        const volumeBar = document.getElementById('volume-bar');
+        const audioDurationEl = document.getElementById('audio-duration');
+        const vizStyleSelect = document.getElementById('viz-style');
+        const scaleSlider = document.getElementById('scale-slider');
+        const scaleValue = document.getElementById('scale-value');
+        const primaryColorInput = document.getElementById('primary-color');
+        const primaryHex = document.getElementById('primary-hex');
+        const bgColorInput = document.getElementById('bg-color');
+        const bgHex = document.getElementById('bg-hex');
+        const videoTitleInput = document.getElementById('video-title');
+        const previewTitleOverlay = document.getElementById('preview-title-overlay');
+        const overlayTextContent = document.getElementById('overlay-text-content');
+        const startRecordingBtn = document.getElementById('start-recording');
+        const recordingStatus = document.getElementById('recording-status');
+        const recordingTimer = document.getElementById('recording-timer');
+        const resultContainer = document.getElementById('result-container');
+        const resultVideo = document.getElementById('result-video');
+        const forceDownloadBtn = document.getElementById('force-download-btn');
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
 
-        window.onload = function() {
-            drawPolygonShape(5, [1.2, 1.2, 0.8, 1.0, 0.9]);
-        };
+        const modal = document.getElementById('modal');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalClose = document.getElementById('modal-close');
 
-        async function addAndAnalyzeSingleFile() {
-            const fileInput = document.getElementById('singleAudioInput');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert("Veuillez d'abord sélectionner un fichier audio.");
+        let generatedDataUrl = null;
+
+        function showModal(title, desc, type = 'info') {
+            modalTitle.textContent = title;
+            modalDesc.textContent = desc;
+            modalIcon.className = `w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl ${
+                type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-pink-500/20 text-pink-400'
+            }`;
+            modalIcon.innerHTML = type === 'success' ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
+            modal.classList.remove('hidden');
+        }
+
+        modalClose.addEventListener('click', () => modal.classList.add('hidden'));
+
+        let audioCtx, analyser, audioSource, audioElement;
+        let dataArray, bufferLength;
+        let isPlaying = false;
+        let animationId;
+        let audioLoaded = false;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let recordingStartTime = 0;
+        let recordingInterval;
+
+        function resizeCanvas() {
+            canvas.width = 1280;
+            canvas.height = 720;
+        }
+        resizeCanvas();
+
+        primaryColorInput.addEventListener('input', (e) => primaryHex.textContent = e.target.value);
+        bgColorInput.addEventListener('input', (e) => bgHex.textContent = e.target.value);
+        scaleSlider.addEventListener('input', (e) => scaleValue.textContent = `${e.target.value}x`);
+
+        videoTitleInput.addEventListener('input', (e) => {
+            if (e.target.value.trim() !== '') {
+                overlayTextContent.textContent = e.target.value;
+                previewTitleOverlay.classList.remove('opacity-0');
+            } else {
+                previewTitleOverlay.classList.add('opacity-0');
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('border-pink-500', 'bg-slate-900'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('border-pink-500', 'bg-slate-900'); }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) handleAudioFile(files[0]);
+        });
+
+        audioFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleAudioFile(e.target.files[0]);
+        });
+
+        removeFileBtn.addEventListener('click', () => {
+            resetAudioApp();
+        });
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function handleAudioFile(file) {
+            if (!file.type.startsWith('audio/')) {
+                showModal('Format invalide', 'Veuillez sélectionner un fichier audio valide (MP3, WAV, etc.)', 'error');
                 return;
             }
 
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') {
-                await audioCtx.resume();
+            if (audioElement) {
+                audioElement.pause();
+                audioElement = null;
             }
 
-            let file = fileInput.files[0];
-            document.getElementById('loadingStatus').innerText = "Chargement et analyse en cours...";
+            const fileURL = URL.createObjectURL(file);
+            audioElement = new Audio(fileURL);
+            audioElement.crossOrigin = 'anonymous';
 
-            try {
-                let arrayBuffer = await file.arrayBuffer();
-                let decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                let analysis = analyzeBufferVariables(decodedBuffer);
-                audioMemory.push({ name: file.name, buffer: decodedBuffer, analysis: analysis });
+            fileNameEl.textContent = file.name;
+            fileInfo.classList.remove('hidden');
+            dropZone.classList.add('hidden');
+            canvasPlaceholder.classList.add('opacity-0', 'pointer-events-none');
 
-                updateMemoryUI();
-                document.getElementById('globalReportBtn').removeAttribute('disabled');
-                document.getElementById('loadingStatus').innerText = `Fichier "${file.name}" ajouté avec succès !`;
-            } catch (e) {
-                console.error(e);
-                document.getElementById('loadingStatus').innerText = "Erreur de décodage audio.";
-                alert("Erreur lors de l'analyse du fichier audio : " + e.message);
-            }
-        }
+            audioElement.addEventListener('loadedmetadata', () => {
+                audioDurationEl.textContent = `00:00 / ${formatTime(audioElement.duration)}`;
+                seekBar.max = audioElement.duration;
+                playBtn.disabled = false;
+                seekBar.disabled = false;
+                startRecordingBtn.disabled = false;
+                audioLoaded = true;
+                setupAudioNodes();
+                drawVisualizerStatic();
+            });
 
-        function updateMemoryUI() {
-            const listEl = document.getElementById('memoryFilesList');
-            listEl.innerHTML = "";
-            audioMemory.forEach((item, index) => {
-                let li = document.createElement('li');
-                li.className = "bg-slate-900 p-1.5 rounded border border-slate-800 flex justify-between items-center";
-                li.innerHTML = `<span>[${index+1}] ${item.name}</span> <span class="text-emerald-400 text-[10px]">Analysé</span>`;
-                listEl.appendChild(li);
+            audioElement.addEventListener('timeupdate', () => {
+                if (!isNaN(audioElement.currentTime)) {
+                    seekBar.value = audioElement.currentTime;
+                    audioDurationEl.textContent = `${formatTime(audioElement.currentTime)} / ${formatTime(audioElement.duration)}`;
+                }
+            });
+
+            audioElement.addEventListener('ended', () => {
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                cancelAnimationFrame(animationId);
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    stopRecording();
+                }
             });
         }
 
-        function analyzeBufferVariables(buffer) {
-            let channelData = buffer.getChannelData(0);
-            let notes = [];
-            for (let i = 0; i < 32; i++) {
-                let idx = Math.floor((i / 32) * channelData.length);
-                notes.push(Math.abs(channelData[idx]) * 14 + 2);
+        function resetAudioApp() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement = null;
             }
-
-            let ints = [];
-            let asc = 0, desc = 0;
-            for (let i = 0; i < notes.length - 1; i++) {
-                let diff = notes[i+1] - notes[i];
-                ints.push(Math.abs(diff));
-                if (diff > 0) asc++; else if (diff < 0) desc++;
-            }
-            return {
-                avgInterval: ints.reduce((a,b)=>a+b,0) / ints.length,
-                directionRatio: asc / (asc + desc || 1),
-                whistleRange: Math.max(...notes) - Math.min(...notes),
-                contrast: Math.sqrt(notes.reduce((a,b)=>a+Math.pow(b-(notes.reduce((x,y)=>x+y)/notes.length),2),0)/notes.length),
-                tensionPeak: Math.max(...notes)/2
-            };
-        }
-
-        function runGlobalTrendAnalysis() {
-            if (audioMemory.length === 0) return;
-            let sum = { avgInterval: 0, directionRatio: 0, whistleRange: 0, contrast: 0, tensionPeak: 0 };
-            audioMemory.forEach(item => {
-                sum.avgInterval += item.analysis.avgInterval;
-                sum.directionRatio += item.analysis.directionRatio;
-                sum.whistleRange += item.analysis.whistleRange;
-                sum.contrast += item.analysis.contrast;
-                sum.tensionPeak += item.analysis.tensionPeak;
-            });
-            let count = audioMemory.length;
-            window.globalTrendsData = {
-                avgInterval: sum.avgInterval / count,
-                directionRatio: sum.directionRatio / count,
-                whistleRange: sum.whistleRange / count,
-                contrast: sum.contrast / count,
-                tensionPeak: sum.tensionPeak / count
-            };
-
-            document.getElementById('globalReportContent').innerHTML = `
-                <strong class='text-emerald-400'>Tendances globales (${count} fichiers) :</strong><br>
-                • Intervalles (Δ) : ${window.globalTrendsData.avgInterval.toFixed(2)}<br>
-                • Direction : ${(window.globalTrendsData.directionRatio*100).toFixed(1)}% ascendant<br>
-                • Contraste (σ) : ${window.globalTrendsData.contrast.toFixed(2)}<br>
-                • Étendue : ${window.globalTrendsData.whistleRange.toFixed(1)} st<br>
-                <span class='text-indigo-400 font-bold'>→ Prêt pour la génération géométrique !</span>
-            `;
-            document.getElementById('propagateBtn').removeAttribute('disabled');
-        }
-
-        function drawPolygonShape(sides, edgeLengths) {
-            const canvas = document.getElementById('polygonCanvas');
-            const ctx = canvas.getContext('2d');
+            audioLoaded = false;
+            isPlaying = false;
+            playBtn.disabled = true;
+            seekBar.disabled = true;
+            startRecordingBtn.disabled = true;
+            fileInfo.classList.add('hidden');
+            dropZone.classList.remove('hidden');
+            canvasPlaceholder.classList.remove('opacity-0', 'pointer-events-none');
+            audioFileInput.value = '';
+            resultContainer.classList.add('hidden');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let cx = canvas.width / 2, cy = canvas.height / 2, radius = 40;
-            ctx.beginPath();
-            for (let i = 0; i < sides; i++) {
-                let angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-                let r = radius * edgeLengths[i % edgeLengths.length];
-                let x = cx + r * Math.cos(angle), y = cy + r * Math.sin(angle);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                ctx.fillStyle = '#34d399'; ctx.fillRect(x - 2, y - 2, 4, 4);
-            }
-            ctx.closePath(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 2; ctx.stroke();
         }
 
-        function generateProposal() {
-            let trends = window.globalTrendsData || { directionRatio: 0.53, contrast: 2.2, whistleRange: 12 };
-            const sides = parseInt(document.getElementById('polygonSides').value) || 5;
-            const instrument = document.getElementById('instrumentSelect').value;
-
-            let edgeLengths = [];
-            for (let i = 0; i < sides; i++) {
-                if (i === 0 || i === 1) edgeLengths.push(1.0);
-                else if (i % 2 === 0) edgeLengths.push(1.35);
-                else edgeLengths.push(0.75);
+        function setupAudioNodes() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            drawPolygonShape(sides, edgeLengths);
-
-            let k = 24, diatonicScale = [2, 4, 5, 7, 9, 11, 12, 14, 16], notes = [], currentIdx = 4;
-            notes.push(diatonicScale[currentIdx]);
-            for (let i = 1; i < k; i++) {
-                let step = (Math.random() < trends.directionRatio) ? 1 : -1;
-                currentIdx = Math.max(0, Math.min(diatonicScale.length - 1, currentIdx + step));
-                notes.push(diatonicScale[currentIdx]);
+            if (audioSource) {
+                try { audioSource.disconnect(); } catch(e) {}
             }
-
-            let melodySequence = [], currentTime = 0.3;
-            notes.forEach((noteVal, index) => {
-                let polyFactor = edgeLengths[index % edgeLengths.length];
-                melodySequence.push({ note: noteVal, timeOffset: currentTime, velocity: 0.8 });
-                currentTime += polyFactor * 0.28;
-            });
-
-            let drumSequence = [];
-            melodySequence.forEach((mItem, idx) => {
-                let pIdx = idx % sides, t = mItem.timeOffset;
-                if (pIdx === 0) drumSequence.push({ type: 'kick', timeOffset: t });
-                if (pIdx === Math.floor(sides / 2)) drumSequence.push({ type: 'snare', timeOffset: t });
-                drumSequence.push({ type: 'hihat', timeOffset: t });
-            });
-
-            currentProposal = { notes, melodySequence, drumSequence, instrument, sides };
-            document.getElementById('approveBtn').removeAttribute('disabled');
-            document.getElementById('loadingStatus').innerText = "Proposition prête et en attente d'approbation.";
+            analyser = audioCtx.createAnalyser();
+            audioSource = audioCtx.createMediaElementSource(audioElement);
+            
+            audioSource.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            
+            analyser.fftSize = 128;
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
         }
 
-        function approveProposal() {
-            if (!currentProposal) return;
-            approvedModel = currentProposal;
-            document.getElementById('playFinalBtn').removeAttribute('disabled');
-            document.getElementById('exportFinalBtn').removeAttribute('disabled');
-            document.getElementById('loadingStatus').innerText = "Modèle approuvé avec succès !";
-        }
+        playBtn.addEventListener('click', () => {
+            if (!audioLoaded) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
 
-        function playDrumSound(ctx, type, time) {
-            let osc = ctx.createOscillator(), gain = ctx.createGain();
-            if (type === 'kick') {
-                osc.frequency.setValueAtTime(130, time); osc.frequency.exponentialRampToValueAtTime(30, time + 0.1);
-                gain.gain.setValueAtTime(0.7, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+            if (isPlaying) {
+                audioElement.pause();
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                cancelAnimationFrame(animationId);
             } else {
-                let buffer = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate), data = buffer.getChannelData(0);
-                for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
-                let noise = ctx.createBufferSource(); noise.buffer = buffer; noise.connect(gain);
-                gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
-                noise.start(time); return;
+                audioElement.play();
+                isPlaying = true;
+                playIcon.className = 'fa-solid fa-pause';
+                visualize();
             }
-            osc.connect(gain); gain.connect(ctx.destination); osc.start(time); osc.stop(time + 0.15);
+        });
+
+        seekBar.addEventListener('input', (e) => {
+            if (audioElement) {
+                audioElement.currentTime = e.target.value;
+            }
+        });
+
+        volumeBar.addEventListener('input', (e) => {
+            if (audioElement) {
+                audioElement.volume = e.target.value;
+            }
+        });
+
+        function drawVisualizerStatic() {
+            ctx.fillStyle = bgColorInput.value;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        function playFinalMusic() {
-            if (!approvedModel) return;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+        function visualize() {
+            if (!isPlaying) return;
+            animationId = requestAnimationFrame(visualize);
 
-            Soundfont.instrument(audioCtx, approvedModel.instrument).then(function (instrument) {
-                let maxDuration = 0;
-                approvedModel.drumSequence.forEach(d => { playDrumSound(audioCtx, d.type, audioCtx.currentTime + d.timeOffset); });
-                const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
-                approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", audioCtx.currentTime + item.timeOffset, { duration: 0.35, gain: item.velocity });
-                    if (item.timeOffset > maxDuration) maxDuration = item.timeOffset;
-                });
-            });
-        }
+            analyser.getByteFrequencyData(dataArray);
 
-        async function prepareWavExport() {
-            if (!approvedModel) return;
-            document.getElementById('loadingStatus').innerText = "Génération du fichier WAV en cours...";
-            let sampleRate = 44100, duration = (approvedModel.melodySequence.slice(-1)[0].timeOffset + 3.0);
-            let offlineCtx = new OfflineAudioContext(2, sampleRate * duration, sampleRate);
-            Soundfont.instrument(offlineCtx, approvedModel.instrument).then(async function (instrument) {
-                approvedModel.drumSequence.forEach(d => { playDrumSound(offlineCtx, d.type, d.timeOffset); });
-                const noteNames = ["", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5"];
-                approvedModel.melodySequence.forEach(item => {
-                    instrument.play(noteNames[item.note] || "C4", item.timeOffset,, { duration: 0.35, gain: item.velocity });
-                });
-                let renderedBuffer = await offlineCtx.startRendering();
-                let wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
-                document.getElementById('nativeAudioPlayer').src = URL.createObjectURL(wavBlob);
-                document.getElementById('audioContainer').classList.remove('hidden');
-                document.getElementById('loadingStatus').innerText = "WAV généré avec succès !";
-            });
-        }
+            const width = canvas.width;
+            const height = canvas.height;
+            const bgColor = bgColorInput.value;
+            const primaryColor = primaryColorInput.value;
+            const style = vizStyleSelect.value;
+            const scale = parseFloat(scaleSlider.value);
 
-        function bufferToWave(abuffer, len) {
-            let numOfChan = abuffer.numberOfChannels,
-                length = len * numOfChan * 2 + 44,
-                buffer = new ArrayBuffer(length),
-                view = new DataView(buffer),
-                channels = [], sample,
-                offset = 0,
-                pos = 0;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
 
-            function writeString(str) {
-                for (let i = 0; i < str.length; i++) {
-                    view.setUint8(pos++, str.charCodeAt(i));
-                }
-            }
+            const usableBins = bufferLength;
+            const padding = 100;
 
-            writeString('RIFF');
-            view.setUint32(pos, length - 8, true); pos += 4;
-            writeString('WAVE');
-            writeString('fmt ');
-            view.setUint32(pos, 16, true); pos += 4;
-            view.setUint16(pos, 1, true); pos += 2;
-            view.setUint16(pos, numOfChan, true); pos += 2;
-            view.setUint32(pos, abuffer.sampleRate, true); pos += 4;
-            view.setUint32(pos, abuffer.sampleRate * 2 * numOfChan, true); pos += 4;
-            view.setUint16(pos, numOfChan * 2, true); pos += 2;
-            view.setUint16(pos, 16, true); pos += 2;
-            writeString('data');
-            view.setUint32(pos, length - pos - 4, true); pos += 4;
+            if (style === 'bars') {
+                const availableWidth = width - (padding * 2);
+                let barWidth = (availableWidth / usableBins) * scale;
+                let totalWidthNeeded = barWidth * usableBins;
+                let startX = (width - totalWidthNeeded) / 2;
 
-            for (let i = 0; i < abuffer.numberOfChannels; i++) {
-                channels.push(abuffer.getChannelData(i));
-            }
+                for (let i = 0; i < usableBins; i++) {
+                    let barHeight = (dataArray[i] / 255) * (height * 0.45) * scale;
 
-            while (offset < len) {
-                for (let i = 0; i < numOfChan; i++) {
-                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
-                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
-                    view.setInt16(pos, sample, true); pos += 2;
-                }
-                offset++;
-            }
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-    </script>
-</body>
-</html>
-
-```
+                    let gradient = ctx.createLinearGradient(0, height / 2, 0, height / 2 + barHeight);
