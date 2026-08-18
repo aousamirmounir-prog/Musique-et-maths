@@ -35,12 +35,12 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Waveform Studio</h1>
-                    <p class="text-xs text-slate-400">Visualiseur & Enregistreur Vidéo Audio</p>
+                    <p class="text-xs text-slate-400">Visualiseur & Avatar 2 Axes</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2 text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-slate-300">Prêt à l'emploi</span>
+                <span class="text-slate-300">Prêt</span>
             </div>
         </div>
     </header>
@@ -51,28 +51,37 @@
         <!-- Controls & Settings Panel -->
         <div class="lg:col-span-1 space-y-6">
             
-            <!-- Step 1: Upload -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <!-- Step 1: Uploads -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <span class="flex items-center justify-center w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 text-xs font-bold">1</span>
-                    Fichier Audio
+                    Fichiers Multimédia
                 </h2>
                 
-                <label id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-pink-500/50 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/50 group">
-                    <div class="w-12 h-12 rounded-full bg-slate-800 group-hover:bg-pink-500/20 flex items-center justify-center text-slate-400 group-hover:text-pink-400 transition mb-3">
-                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                <!-- Audio Upload -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5">Fichier Audio</label>
+                    <label id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-pink-500/50 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/50 group">
+                        <span class="text-xs font-medium text-slate-200 group-hover:text-pink-300 transition text-center"><i class="fa-solid fa-music mr-1"></i> Choisir un audio (MP3/WAV)</span>
+                        <input type="file" id="audio-file" accept="audio/*" class="hidden">
+                    </label>
+                    <div id="file-info" class="mt-2 hidden p-2 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-center justify-between text-xs">
+                        <span id="file-name" class="text-slate-200 truncate">audio.mp3</span>
+                        <button id="remove-file" class="text-slate-400 hover:text-red-400 p-1"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <span class="text-sm font-medium text-slate-200 group-hover:text-pink-300 transition text-center">Glissez un fichier audio ici</span>
-                    <span class="text-xs text-slate-500 mt-1">MP3, WAV, AAC, OGG</span>
-                    <input type="file" id="audio-file" accept="audio/*" class="hidden">
-                </label>
-                
-                <div id="file-info" class="mt-4 hidden p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-center justify-between">
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                        <i class="fa-solid fa-music text-pink-400 flex-shrink-0"></i>
-                        <span id="file-name" class="text-xs text-slate-200 truncate">nom_du_fichier.mp3</span>
+                </div>
+
+                <!-- Image Upload (Optional for Talking Avatar) -->
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1.5">Image de Personnage / Avatar (Optionnel)</label>
+                    <label class="border-2 border-dashed border-slate-700 hover:border-pink-500/50 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition bg-slate-950/50 group">
+                        <span class="text-xs font-medium text-slate-200 group-hover:text-pink-300 transition text-center"><i class="fa-solid fa-image mr-1"></i> Charger une image</span>
+                        <input type="file" id="image-file" accept="image/*" class="hidden">
+                    </label>
+                    <div id="image-info" class="mt-2 hidden p-2 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-center justify-between text-xs">
+                        <span id="image-name" class="text-slate-200 truncate">avatar.png</span>
+                        <button id="remove-image" class="text-slate-400 hover:text-red-400 p-1"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <button id="remove-file" class="text-slate-400 hover:text-red-400 p-1 transition"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
@@ -90,16 +99,26 @@
                         <option value="bars">Barres dynamiques</option>
                         <option value="wave">Onde fluide continue</option>
                         <option value="circle">Cercle Symétrique 360°</option>
+                        <option value="talking_avatar">Avatar / Image Parlante</option>
                     </select>
                 </div>
 
                 <!-- Scale Slider -->
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
-                        <label class="text-xs text-slate-400">Échelle / Taille de l'animation</label>
+                        <label class="text-xs text-slate-400">Échelle / Taille</label>
                         <span id="scale-value" class="text-xs text-pink-400 font-mono">1.0x</span>
                     </div>
                     <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500 border border-slate-700">
+                </div>
+
+                <!-- Audio Sensitivity / Threshold Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs text-slate-400" title="Ignore les petites variations pour ne garder que les grands mouvements">Filtre de bruits (Seuil)</label>
+                        <span id="threshold-value" class="text-xs text-pink-400 font-mono">15%</span>
+                    </div>
+                    <input type="range" id="threshold-slider" min="0" max="60" step="1" value="15" class="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500 border border-slate-700">
                 </div>
 
                 <!-- Color Scheme -->
@@ -141,9 +160,12 @@
                     Enregistrer la vidéo
                 </button>
 
-                <div id="recording-status" class="hidden flex items-center justify-center space-x-2 text-xs text-pink-400 bg-pink-500/10 p-2.5 rounded-xl border border-pink-500/20">
-                    <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping"></span>
-                    <span id="recording-timer">Enregistrement en cours... (00:00)</span>
+                <div id="recording-status" class="hidden flex items-center justify-between text-xs text-pink-400 bg-pink-500/10 p-2.5 rounded-xl border border-pink-500/20">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping"></span>
+                        <span id="recording-timer">Enregistrement... (00:00)</span>
+                    </div>
+                    <button id="stop-recording-btn" class="bg-red-500/20 hover:bg-red-500/40 text-red-300 px-2 py-1 rounded-lg transition font-medium">Arrêter</button>
                 </div>
             </div>
 
@@ -165,7 +187,7 @@
                     <canvas id="visualizer" class="w-full h-full block"></canvas>
                     
                     <!-- Overlay Text Preview -->
-                    <div id="preview-title-overlay" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                    <div id="preview-title-overlay" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 z-30">
                         <h3 id="overlay-text-content" class="text-2xl font-bold text-white tracking-wider drop-shadow-lg text-center px-4"></h3>
                     </div>
 
@@ -202,9 +224,9 @@
                     <span class="text-[10px] text-slate-400">Prête au téléchargement</span>
                 </div>
                 
-                <video id="result-video" controls class="w-full aspect-video rounded-xl bg-black border border-slate-800"></video>
+                <video id="result-video" controls preload="auto" playsinline class="w-full aspect-video rounded-xl bg-black border border-slate-800"></video>
 
-                <!-- Bouton de Téléchargement Ultime Base64 -->
+                <!-- Bouton de Téléchargement -->
                 <button id="force-download-btn" class="w-full py-3.5 px-4 rounded-xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-center cursor-pointer">
                     <i class="fa-solid fa-download text-base"></i>
                     Télécharger la vidéo (.webm)
@@ -220,23 +242,29 @@
         Générateur Waveform Audio & Vidéo &bull; Conçu avec HTML5 Canvas & Web Audio API
     </footer>
 
-    <!-- Custom Notification Modal -->
+    <!-- Custom Notification / Redirect Modal -->
     <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">
             <div id="modal-icon" class="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl"></div>
             <h3 id="modal-title" class="text-base font-bold text-white"></h3>
             <p id="modal-desc" class="text-xs text-slate-400"></p>
-            <button id="modal-close" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition">Fermer</button>
+            <div id="modal-actions" class="space-y-2 pt-2">
+                <button id="modal-close" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition">Fermer</button>
+            </div>
         </div>
     </div>
 
     <!-- Application Script -->
     <script>
         const audioFileInput = document.getElementById('audio-file');
+        const imageFileInput = document.getElementById('image-file');
         const dropZone = document.getElementById('drop-zone');
         const fileInfo = document.getElementById('file-info');
         const fileNameEl = document.getElementById('file-name');
         const removeFileBtn = document.getElementById('remove-file');
+        const imageInfo = document.getElementById('image-info');
+        const imageNameEl = document.getElementById('image-name');
+        const removeImageBtn = document.getElementById('remove-image');
         const canvasPlaceholder = document.getElementById('canvas-placeholder');
         const playBtn = document.getElementById('play-btn');
         const playIcon = document.getElementById('play-icon');
@@ -246,6 +274,8 @@
         const vizStyleSelect = document.getElementById('viz-style');
         const scaleSlider = document.getElementById('scale-slider');
         const scaleValue = document.getElementById('scale-value');
+        const thresholdSlider = document.getElementById('threshold-slider');
+        const thresholdValue = document.getElementById('threshold-value');
         const primaryColorInput = document.getElementById('primary-color');
         const primaryHex = document.getElementById('primary-hex');
         const bgColorInput = document.getElementById('bg-color');
@@ -254,6 +284,7 @@
         const previewTitleOverlay = document.getElementById('preview-title-overlay');
         const overlayTextContent = document.getElementById('overlay-text-content');
         const startRecordingBtn = document.getElementById('start-recording');
+        const stopRecordingBtn = document.getElementById('stop-recording-btn');
         const recordingStatus = document.getElementById('recording-status');
         const recordingTimer = document.getElementById('recording-timer');
         const resultContainer = document.getElementById('result-container');
@@ -266,17 +297,35 @@
         const modalIcon = document.getElementById('modal-icon');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
+        const modalActions = document.getElementById('modal-actions');
         const modalClose = document.getElementById('modal-close');
 
         let generatedDataUrl = null;
+        let customImage = null;
+        let smoothedLevel = 0;
 
-        function showModal(title, desc, type = 'info') {
+        function showModal(title, desc, type = 'info', isRedirect = false) {
             modalTitle.textContent = title;
             modalDesc.textContent = desc;
             modalIcon.className = `w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl ${
                 type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-pink-500/20 text-pink-400'
             }`;
             modalIcon.innerHTML = type === 'success' ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+            if (isRedirect) {
+                modalActions.innerHTML = `
+                    <button id="open-chrome-btn" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition mb-2">Ouvrir dans Chrome</button>
+                    <button id="modal-close-custom" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">Annuler</button>
+                `;
+                document.getElementById('open-chrome-btn').addEventListener('click', () => {
+                    window.open(generatedDataUrl, '_blank');
+                    modal.classList.add('hidden');
+                });
+                document.getElementById('modal-close-custom').addEventListener('click', () => modal.classList.add('hidden'));
+            } else {
+                modalActions.innerHTML = `<button id="modal-close" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition">Fermer</button>`;
+                document.getElementById('modal-close').addEventListener('click', () => modal.classList.add('hidden'));
+            }
             modal.classList.remove('hidden');
         }
 
@@ -301,6 +350,7 @@
         primaryColorInput.addEventListener('input', (e) => primaryHex.textContent = e.target.value);
         bgColorInput.addEventListener('input', (e) => bgHex.textContent = e.target.value);
         scaleSlider.addEventListener('input', (e) => scaleValue.textContent = `${e.target.value}x`);
+        thresholdSlider.addEventListener('input', (e) => thresholdValue.textContent = `${e.target.value}%`);
 
         videoTitleInput.addEventListener('input', (e) => {
             if (e.target.value.trim() !== '') {
@@ -311,17 +361,28 @@
             }
         });
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.add('border-pink-500', 'bg-slate-900'); }, false);
-        });
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => { e.preventDefault(); dropZone.classList.remove('border-pink-500', 'bg-slate-900'); }, false);
+        imageFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    customImage = new Image();
+                    customImage.onload = () => {
+                        drawVisualizerStatic();
+                    };
+                    customImage.src = event.target.result;
+                    imageNameEl.textContent = file.name;
+                    imageInfo.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length) handleAudioFile(files[0]);
+        removeImageBtn.addEventListener('click', () => {
+            customImage = null;
+            imageFileInput.value = '';
+            imageInfo.classList.add('hidden');
+            drawVisualizerStatic();
         });
 
         audioFileInput.addEventListener('change', (e) => {
@@ -422,40 +483,56 @@
             dataArray = new Uint8Array(bufferLength);
         }
 
-        playBtn.addEventListener('click', () => {
-            if (!audioLoaded) return;
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            if (isPlaying) {
-                audioElement.pause();
-                isPlaying = false;
-                playIcon.className = 'fa-solid fa-play';
-                cancelAnimationFrame(animationId);
-            } else {
-                audioElement.play();
-                isPlaying = true;
-                playIcon.className = 'fa-solid fa-pause';
-                visualize();
-            }
-        });
-
-        seekBar.addEventListener('input', (e) => {
-            if (audioElement) {
-                audioElement.currentTime = e.target.value;
-            }
-        });
-
-        volumeBar.addEventListener('input', (e) => {
-            if (audioElement) {
-                audioElement.volume = e.target.value;
-            }
-        });
-
         function drawVisualizerStatic() {
             ctx.fillStyle = bgColorInput.value;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (customImage && customImage.complete) {
+                drawImageCentered(0, 0);
+            }
+        }
+
+        function drawImageCentered(offsetX = 0, offsetY = 0) {
+            if (!customImage) return;
+            const maxWidth = 340;
+            const maxHeight = 340;
+            let imgWidth = customImage.width;
+            let imgHeight = customImage.height;
+
+            if (imgWidth > maxWidth) {
+                imgHeight = (maxWidth / imgWidth) * imgHeight;
+                imgWidth = maxWidth;
+            }
+            if (imgHeight > maxHeight) {
+                imgWidth = (maxHeight / imgHeight) * imgWidth;
+                imgHeight = maxHeight;
+            }
+
+            const scale = parseFloat(scaleSlider.value);
+            const currentW = imgWidth * scale;
+            const currentH = imgHeight * scale;
+
+            const minX = 60;
+            const maxX = canvas.width - currentW - 60;
+            let targetX = ((canvas.width - currentW) / 2) + offsetX;
+            targetX = Math.max(minX, Math.min(maxX, targetX));
+
+            const minY = 60;
+            const maxY = canvas.height - currentH - 60;
+            let targetY = ((canvas.height - currentH) / 2) + offsetY;
+            targetY = Math.max(minY, Math.min(maxY, targetY));
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(targetX, targetY, currentW, currentH, 20);
+            ctx.clip();
+            ctx.drawImage(customImage, targetX, targetY, currentW, currentH);
+            ctx.restore();
+
+            ctx.strokeStyle = primaryColorInput.value;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.roundRect(targetX, targetY, currentW, currentH, 20);
+            ctx.stroke();
         }
 
         function visualize() {
@@ -470,9 +547,45 @@
             const primaryColor = primaryColorInput.value;
             const style = vizStyleSelect.value;
             const scale = parseFloat(scaleSlider.value);
+            const threshold = parseInt(thresholdSlider.value);
 
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
+
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                sum += dataArray[i];
+            }
+            let avgLevel = (sum / bufferLength / 255) * 100;
+            let rawEffective = avgLevel > threshold ? (avgLevel - threshold) / (100 - threshold) : 0;
+            
+            smoothedLevel += (rawEffective - smoothedLevel) * 0.25;
+
+            let time = Date.now() * 0.015;
+            let speechCurveY = Math.sin(time) * (smoothedLevel * 22 * scale);
+            let speechCurveX = Math.cos(time * 0.7) * (smoothedLevel * 14 * scale);
+
+            // Gestion de l'affichage selon le style choisi
+            if (style === 'talking_avatar') {
+                if (customImage && customImage.complete) {
+                    drawImageCentered(speechCurveX, speechCurveY);
+                }
+                let centerX = width / 2;
+                let centerY = height / 2;
+                let radius = (Math.min(width, height) * 0.25) * scale * (1 + smoothedLevel * 0.2);
+
+                ctx.strokeStyle = primaryColor + '44';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.arc(centerX + speechCurveX * 0.5, centerY + speechCurveY * 0.5, radius, 0, Math.PI * 2);
+                ctx.stroke();
+                return; // Sortie anticipée pour l'avatar parlant
+            }
+
+            // Pour les autres visualiseurs (barres, onde, cercle), on affiche tout le flux audio complet
+            if (customImage && customImage.complete) {
+                drawImageCentered(0, 0); // Image fixe ou discrète en arrière-plan
+            }
 
             const usableBins = bufferLength;
             const padding = 100;
@@ -560,6 +673,37 @@
             }
         }
 
+        playBtn.addEventListener('click', () => {
+            if (!audioLoaded) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (isPlaying) {
+                audioElement.pause();
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                cancelAnimationFrame(animationId);
+            } else {
+                audioElement.play();
+                isPlaying = true;
+                playIcon.className = 'fa-solid fa-pause';
+                visualize();
+            }
+        });
+
+        seekBar.addEventListener('input', (e) => {
+            if (audioElement) {
+                audioElement.currentTime = e.target.value;
+            }
+        });
+
+        volumeBar.addEventListener('input', (e) => {
+            if (audioElement) {
+                audioElement.volume = e.target.value;
+            }
+        });
+
         startRecordingBtn.addEventListener('click', () => {
             if (!audioLoaded) return;
 
@@ -600,18 +744,29 @@
             mediaRecorder.onstop = () => {
                 const blob = new Blob(recordedChunks, { type: 'video/webm' });
                 
-                // Conversion absolue en Data URL Base64 pour contourner les restrictions mobiles
                 const reader = new FileReader();
                 reader.readAsDataURL(blob);
                 reader.onloadend = () => {
                     generatedDataUrl = reader.result;
                     resultVideo.src = generatedDataUrl;
+                    resultVideo.load();
                     resultContainer.classList.remove('hidden');
 
                     recordingStatus.classList.add('hidden');
                     startRecordingBtn.disabled = false;
-                    startRecordingBtn.innerHTML = '<i class="fa-solid fa-video"></i> Enregistrer à nouveau';
-                    showModal('Vidéo prête !', 'Votre vidéo est générée et convertie. Appuyez sur le bouton vert pour télécharger instantanément.', 'success');
+                    startRecordingBtn.innerHTML = '<i class="fa-solid fa-video"></i> Enregistrer la vidéo';
+
+                    try {
+                        const a = document.createElement('a');
+                        a.href = generatedDataUrl;
+                        a.download = 'waveform_animation.webm';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showModal('Téléchargement direct', 'Le téléchargement a démarré. Si votre mobile l\'a bloqué, cliquez ci-dessous pour ouvrir la vidéo dans Chrome.', 'success', false);
+                    } catch (err) {
+                        showModal('Téléchargement restreint', 'Voulez-vous ouvrir une fenêtre dans Chrome pour télécharger la vidéo via les 3 petits points ?', 'info', true);
+                    }
                 };
             };
 
@@ -623,13 +778,14 @@
 
             mediaRecorder.start();
             startRecordingBtn.disabled = true;
+            startRecordingBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...';
             recordingStatus.classList.remove('hidden');
 
             recordingStartTime = Date.now();
             clearInterval(recordingInterval);
             recordingInterval = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-                recordingTimer.textContent = `Enregistrement en cours... (${formatTime(elapsed)})`;
+                recordingTimer.textContent = `Enregistrement... (${formatTime(elapsed)})`;
                 
                 if (audioElement.ended) {
                     stopRecording();
@@ -637,16 +793,22 @@
             }, 500);
         });
 
-        // Téléchargement garanti via Data URL
+        stopRecordingBtn.addEventListener('click', () => {
+            stopRecording();
+        });
+
         forceDownloadBtn.addEventListener('click', () => {
             if (!generatedDataUrl) return;
-            
-            const a = document.createElement('a');
-            a.href = generatedDataUrl;
-            a.download = 'waveform_animation.webm';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            try {
+                const a = document.createElement('a');
+                a.href = generatedDataUrl;
+                a.download = 'waveform_animation.webm';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (e) {
+                showModal('Ouverture dans Chrome', 'Voulez-vous ouvrir la vidéo dans Chrome pour la télécharger via les 3 petits points ?', 'info', true);
+            }
         });
 
         function stopRecording() {
